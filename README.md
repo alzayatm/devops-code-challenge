@@ -1,3 +1,24 @@
+## Deployment Summary
+
+1. All infrastructure provisioning and deployments are fully automated, with the exception of the manually configured Jenkins build server.
+2. Both the backend (Express.js) and frontend (React) applications are containerized using Docker.
+3. Infrastructure is provisioned using Terraform within the Jenkins CI/CD pipeline, including ECS, ECR, IAM roles, security groups, and ALBs.
+4. Any changes pushed to source control automatically trigger the pipeline via a webhook, which builds, pushes, and redeploys to ECS.
+5. Two separate Application Load Balancers (ALBs) are provisioned — one for the backend API and one for the frontend UI — to support decoupled, scalable services.
+6. The frontend app is built with the correct `REACT_APP_API_URL`, pointing to the backend ALB, and the backend explicitly sets CORS headers to only allow requests from the frontend ALB.
+
+## Future Enhancements
+
+- Configure HTTPS for both ALBs using ACM (AWS Certificate Manager) and custom domains for secure traffic.
+- Store and manage Terraform state remotely using an S3 backend with DynamoDB locking.
+- Containerize the Jenkins server and provision it using Infrastructure as Code (e.g., Terraform or Ansible).
+- Implement Blue/Green or Rolling deployments with ECS for zero-downtime updates.
+- Add monitoring, logging, and alerting using CloudWatch or a third-party APM like Datadog or Prometheus.
+- Enforce environment separation (dev/stage/prod) with separate Terraform workspaces or directory structures.
+- Use parameter store or Secrets Manager for environment secrets instead of hardcoding them in config files.
+- Improve pipeline efficiency with caching and parallel build steps.
+
+
 # Overview
 This repository contains a React frontend, and an Express backend that the frontend connects to.
 
