@@ -37,6 +37,42 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+resource "aws_lb" "backend_alb" {
+  name               = "backend-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = var.security_group_ids
+  subnets            = var.subnet_ids
+}
+
+resource "aws_lb_target_group" "backend_tg" {
+  name        = "backend-tg"
+  port        = 8080
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = var.vpc_id
+
+  health_check {
+    path                = "/"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    matcher             = "200"
+  }
+}
+
+resource "aws_lb_listener" "backend_listener" {
+  load_balancer_arn = aws_lb.backend_alb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.backend_tg.arn
+  }
+}
+
 resource "aws_ecs_task_definition" "backend" {
   family                   = "backend-task"
   network_mode             = "awsvpc"
@@ -97,19 +133,26 @@ resource "aws_ecs_service" "backend" {
     assign_public_ip = true
     security_groups  = var.security_group_ids
   }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.backend_tg.arn
+    container_name   = "backend"
+    container_port   = 8080
+  }
+
+  depends_on = [aws_lb_listener.backend_listener]
 }
 
 resource "aws_ecs_service" "frontend" {
-    name            = "frontend-service"
-    cluster         = aws_ecs_cluster.main.id
-    task_definition = aws_ecs_task_definition.frontend.arn
-    desired_count   = 1
-    launch_type     = "FARGATE"
+  name            = "frontend-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.frontend.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
 
-    network_configuration {
-        subnets          = var.subnet_ids
-        assign_public_ip = true
-        security_groups  = var.security_group_ids
-    }
+  network_configuration {
+    subnets          = var.subnet_ids
+    assign_public_ip = true
+    security_groups  = var.security_group_ids
   }
-
+}

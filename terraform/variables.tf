@@ -9,6 +9,11 @@ variable "account_id" {
   type        = string
 }
 
+variable "vpc_id" {
+  description = "The VPC ID to deploy into"
+  type        = string
+}
+
 variable "subnet_ids" {
   description = "List of subnet IDs to run ECS services in"
   type        = list(string)
