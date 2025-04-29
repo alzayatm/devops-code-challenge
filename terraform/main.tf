@@ -73,6 +73,42 @@ resource "aws_lb_listener" "backend_listener" {
   }
 }
 
+resource "aws_lb" "frontend_alb" {
+  name               = "frontend-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = var.security_group_ids
+  subnets            = var.subnet_ids
+}
+
+resource "aws_lb_target_group" "frontend_tg" {
+  name        = "frontend-tg"
+  port        = 80
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = var.vpc_id
+
+  health_check {
+    path                = "/"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    matcher             = "200"
+  }
+}
+
+resource "aws_lb_listener" "frontend_listener" {
+  load_balancer_arn = aws_lb.frontend_alb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.frontend_tg.arn
+  }
+}
+
 resource "aws_ecs_task_definition" "backend" {
   family                   = "backend-task"
   network_mode             = "awsvpc"
@@ -155,4 +191,12 @@ resource "aws_ecs_service" "frontend" {
     assign_public_ip = true
     security_groups  = var.security_group_ids
   }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.frontend_tg.arn
+    container_name   = "frontend"
+    container_port   = 80
+  }
+
+  depends_on = [aws_lb_listener.frontend_listener]
 }
