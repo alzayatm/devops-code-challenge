@@ -3,8 +3,8 @@ pipeline {
 
   environment {
     AWS_REGION = 'us-east-2'
-    BACKEND_IMAGE = "406902142567.dkr.ecr.us-east-2.amazonaws.com/devops-code-challenge/express-backend:latest"
-    FRONTEND_IMAGE = "406902142567.dkr.ecr.us-east-2.amazonaws.com/devops-code-challenge/react-frontend:latest"
+    BACKEND_IMAGE = "406902142567.dkr.ecr.us-east-2.amazonaws.com/express-backend:latest"
+    FRONTEND_IMAGE = "406902142567.dkr.ecr.us-east-2.amazonaws.com/react-frontend:latest"
   }
 
   stages {
