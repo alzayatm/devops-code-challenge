@@ -7,8 +7,6 @@
 5. Two separate Application Load Balancers (ALBs) are provisioned — one for the backend API and one for the frontend UI — to support decoupled, scalable services.
 6. The frontend app is built with the correct `REACT_APP_API_URL`, pointing to the backend ALB, and the backend explicitly sets CORS headers to only allow requests from the frontend ALB.
 
----
-
 ## Future Enhancements
 
 - Configure HTTPS for both ALBs using ACM (AWS Certificate Manager) and custom domains for secure traffic.
