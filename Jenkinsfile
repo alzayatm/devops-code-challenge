@@ -63,12 +63,12 @@ pipeline {
       steps {
         sh '''
           aws ecs update-service \
-            --cluster your-ecs-cluster-name \
+            --cluster devops-challenge-cluster \
             --service backend-service \
             --force-new-deployment
 
           aws ecs update-service \
-            --cluster your-ecs-cluster-name \
+            --cluster devops-challenge-cluster \
             --service frontend-service \
             --force-new-deployment
         '''
