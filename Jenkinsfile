@@ -17,7 +17,13 @@ pipeline {
     stage('Build Backend Docker Image') {
       steps {
         dir('backend') {
-          sh 'docker build -f ../Docker/Dockerfile.backend -t $BACKEND_IMAGE .'        
+          sh '''
+            docker build \
+              -f ../Docker/Dockerfile.backend \
+              --build-arg REACT_APP_API_URL=http://backend-alb-1089967300.us-east-2.elb.amazonaws.com \
+              -t $BACKEND_IMAGE \
+              .
+          '''
         }
       }
     }
@@ -25,7 +31,12 @@ pipeline {
     stage('Build Frontend Docker Image') {
       steps {
         dir('frontend') {
-          sh 'docker build -f ../Docker/Dockerfile.frontend -t $FRONTEND_IMAGE .'
+          sh '''
+            docker build \
+              -f ../Docker/Dockerfile.frontend \
+              -t $FRONTEND_IMAGE \
+              .
+          '''
         }
       }
     }
