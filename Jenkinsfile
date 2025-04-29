@@ -30,6 +30,17 @@ pipeline {
       }
     }
 
+    stage('Provision Infrastructure via Terraform') {
+      steps {
+        dir('terraform') {
+          sh '''
+            terraform init
+            terraform apply -auto-approve
+          '''
+        }
+      }
+    }
+
     stage('Login to ECR') {
       steps {
         sh '''
@@ -45,17 +56,6 @@ pipeline {
           docker push $BACKEND_IMAGE
           docker push $FRONTEND_IMAGE
         '''
-      }
-    }
-
-    stage('Provision Infrastructure via Terraform') {
-      steps {
-        dir('terraform') {
-          sh '''
-            terraform init
-            terraform apply -auto-approve
-          '''
-        }
       }
     }
 
